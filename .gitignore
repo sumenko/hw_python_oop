@@ -14,3 +14,7 @@ __pycache__/
 
 *.sublime-project
 *.sublime-workspace
+
+.vscode/
+my_tests.py
+
