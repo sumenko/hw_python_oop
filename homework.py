@@ -10,9 +10,8 @@ class Calculator:
         self.records = []
 
     def add_record(self, record):
-        """Сохранять новую запись о расходах методом."""
+        """Сохраняет новую запись о расходах."""
         self.records.append(record)
-        pass
 
     def get_date(self, delta_days=0):
         """Возвращает сегодняшнюю дату либо дату на delta дней назад."""
@@ -44,10 +43,9 @@ class Calculator:
     def get_week_stats(self):
         today = self.get_date()
         week_ago = self.get_date(7)
-        # print(f"{today} : {week_ago}")
         amount = 0
         for record in self.records:
-            if record.date <= today and record.date >= week_ago:
+            if week_ago <= record.date <= today:
                 amount += record.amount
         return amount
 
@@ -68,17 +66,18 @@ class CashCalculator(Calculator):
 
         today_left = self.get_today_left()
 
-        if today_left > 0:
+        if today_left == 0:
+            msg = "Денег нет, держись"
+        elif today_left > 0:
             msg = "На сегодня осталось"
         elif today_left < 0:
             msg = "Денег нет, держись: твой долг -"
-        elif today_left == 0:
-            msg = "Денег нет, держись"
         today_left = abs(today_left)
 
         if today_left:
-            msg += " {:.2f}".format(today_left/currency_dict[currency][1])
-            msg += " " + currency_dict[currency][0]
+            name, rate = currency_dict[currency]
+            money = today_left/rate
+            msg += f" {money:.2f} {name}"
 
         return msg
 
@@ -90,21 +89,20 @@ class CaloriesCalculator(Calculator):
         """Выводит сколько можно употребить калорий сегодня."""
         calories_left = self.get_today_left()
 
-        if calories_left > 0:
-            msg = (f"Сегодня можно съесть что-нибудь ещё, но с общей "
-                   f"калорийностью не более {calories_left} кКал")
-            return msg
-        else:
+        if calories_left <= 0:
             return "Хватит есть!"
+
+        return ("Сегодня можно съесть что-нибудь ещё, но с общей "
+                f"калорийностью не более {calories_left} кКал")
 
 
 class Record:
-    def __init__(self, amount, comment, date=""):
+    def __init__(self, amount, comment, date=None):
         """Принимает и сохраняет аргументы в запись"""
         date_format = "%d.%m.%Y"
 
         # Если пустая дата, берем сегодня
-        if date == "":
+        if date is None:
             self.date = dt.datetime.now().date()
         else:
             self.date = dt.datetime.strptime(date, date_format).date()
@@ -133,8 +131,6 @@ if __name__ == "__main__":
         c.add_record(Record(amount=amount, comment=f"# {iter}", date=date))
 
         print(c.get_calories_remained())
-        # print(c.get_today_cash_remained('rub'))
-        # print(c.get_today_cash_remained('eur'))
-        # print(c.get_today_cash_remained('usd'))
+
     c.show_all_records()
     print("За неделю: ", c.get_week_stats())
