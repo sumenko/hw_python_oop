@@ -67,7 +67,7 @@ class CashCalculator(Calculator):
         today_left = self.get_today_left()
 
         if today_left == 0:
-            msg = "Денег нет, держись"
+            return "Денег нет, держись"
         elif today_left > 0:
             msg = "На сегодня осталось"
         elif today_left < 0:
